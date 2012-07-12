@@ -1,0 +1,3 @@
+Use this to build Kafka RPM.
+Some notes:
+In the package SOURCES/kafka-0.7.2.tar.gz is not an official version. It is simply a git clone of kafka/trunk, that is build using using sbt and then packaged into a tar.
