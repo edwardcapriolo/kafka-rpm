@@ -1,0 +1,18 @@
+%packager               m6d
+%distribution           m6d.com
+%vendor                 m6d.com
+
+%_signature             gpg
+%_gpg_name              m6d.com
+
+%_topdir                %(echo $HOME)/m6d
+%_tmppath               %{_topdir}/tmp
+%_builddir              %{_tmppath}
+
+#%_rpmtopdir             %{_topdir}/%{name}
+#%_sourcedir             %{_rpmtopdir}
+#%_specdir               %{_rpmtopdir}
+#%_rpmdir                %{_topdir}/RPMS
+#%_srcrpmdir             %{_topdir}/RPMS
+#%_rpmfilename           %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm
+
