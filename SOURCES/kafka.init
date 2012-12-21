@@ -52,7 +52,7 @@ case "$1" in
     ;;
 
   *)
-    echo "Usage: cassandra {start|stop|hardstop|status|restart}"
+    echo "Usage: kafka {start|stop|hardstop|status|restart}"
     exit 1
     ;;
 
