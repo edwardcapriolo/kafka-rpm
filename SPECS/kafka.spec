@@ -20,6 +20,12 @@ Prereq: jdk >= 1.6
 %description
 Follow this example and you can do no wrong
 
+%pre
+getent group kafka >/dev/null || groupadd -r kafka
+getent passwd kafka >/dev/null || \
+    useradd -r -g kafka -d /var/lib/kafka -s /sbin/nologin \
+    -c "User for kafka services" kafka
+exit 0
 %prep
 
 %setup
