@@ -54,6 +54,7 @@ cp sbt $RPM_BUILD_ROOT/opt/kafka/
 mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 install  -m 755 %{S:1} $RPM_BUILD_ROOT/etc/rc.d/init.d/kafka
 install  -m 755 %{S:2} $RPM_BUILD_ROOT/etc/rc.d/init.d/kafka-zookeeper
+install -d -m0755 $RPM_BUILD_ROOT/var/lib/kafka
 
 %files
 %defattr(-,root,root)
