@@ -65,7 +65,7 @@ install -d -m0755 $RPM_BUILD_ROOT/%{_sharedstatedir}/kafka
 /opt/kafka
 %{_sysconfdir}/rc.d/init.d/kafka
 %{_sysconfdir}/rc.d/init.d/kafka-zookeeper
-%{_sharedstatedir}/kafka
+%config %attr(-, kafka, kafka) %{_sharedstatedir}/kafka
 
 %clean
 #used to cleanup things outside the build area and possibly inside.
