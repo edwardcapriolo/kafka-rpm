@@ -23,7 +23,7 @@ Follow this example and you can do no wrong
 %pre
 getent group kafka >/dev/null || groupadd -r kafka
 getent passwd kafka >/dev/null || \
-    useradd -r -g kafka -d /var/lib/kafka -s /sbin/nologin \
+    useradd -r -g kafka -d %{_sharedstatedir}/kafka -s /sbin/nologin \
     -c "User for kafka services" kafka
 exit 0
 %prep
@@ -34,6 +34,7 @@ exit 0
 
 %install
 pwd
+rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/opt/kafka
 mkdir -p $RPM_BUILD_ROOT/opt/kafka/config
 
@@ -54,7 +55,7 @@ cp sbt $RPM_BUILD_ROOT/opt/kafka/
 mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 install  -m 755 %{S:1} $RPM_BUILD_ROOT/etc/rc.d/init.d/kafka
 install  -m 755 %{S:2} $RPM_BUILD_ROOT/etc/rc.d/init.d/kafka-zookeeper
-install -d -m0755 $RPM_BUILD_ROOT/var/lib/kafka
+install -d -m0755 $RPM_BUILD_ROOT/%{_sharedstatedir}/kafka
 
 %files
 %defattr(-,root,root)
@@ -62,8 +63,9 @@ install -d -m0755 $RPM_BUILD_ROOT/var/lib/kafka
 %config %attr(755,root,root) /opt/kafka/config
 
 /opt/kafka
-/etc/rc.d/init.d/kafka
-/etc/rc.d/init.d/kafka-zookeeper
+%{_sysconfdir}/rc.d/init.d/kafka
+%{_sysconfdir}/rc.d/init.d/kafka-zookeeper
+%{_sharedstatedir}/kafka
 
 %clean
 #used to cleanup things outside the build area and possibly inside.
