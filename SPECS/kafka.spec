@@ -5,17 +5,17 @@ Version: 0.7.2
 Release: 1
 License: Apache (v2)
 Group: Applications
-Source0: ftp://ftp.nowhere.com/kafka-%{version}.tar.gz
+# You can get the sources by selecting one of the mirrors from the https://www.apache.org/dyn/closer.cgi/incubator/kafka/kafka-0.7.2-incubating/kafka-0.7.2-incubating-src.tgz site
+Source0: %{name}-%{version}-incubating-src.tgz
 Source1: ftp://ftp.nowhere.com/kafka.init
 Source2: ftp://ftp.nowhere.com/kafka-zookeeper.init
 URL: http://kafka.apache.org
-#BuildRoot: tmp/kafka-0.7.1
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Distribution: m6d
 Vendor: m6d
 Packager: edlinuxguru@gmail.com
 
-Prereq: jdk >= 1.6
+Requires(pre): jdk >= 1.6
 
 %description
 Follow this example and you can do no wrong
@@ -28,9 +28,10 @@ getent passwd kafka >/dev/null || \
 exit 0
 %prep
 
-%setup
-
+%setup -q -n kafka-0.7.2-incubating-src
 %build
+./sbt update
+./sbt package
 
 %install
 pwd
