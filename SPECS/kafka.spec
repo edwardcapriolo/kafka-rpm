@@ -1,5 +1,5 @@
 %define __jar_repack 0
-Summary: Kafka and distributed topic based producer consumer queue
+Summary: Kafka distributed topic based producer consumer queue
 Name: kafka
 Version: 0.7.2
 Release: 1
@@ -11,9 +11,6 @@ Source1: ftp://ftp.nowhere.com/kafka.init
 Source2: ftp://ftp.nowhere.com/kafka-zookeeper.init
 URL: http://kafka.apache.org
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Distribution: m6d
-Vendor: m6d
-Packager: edlinuxguru@gmail.com
 
 # IMO this should be 'BuildRequires: java-devel', but while 'yum provides' says
 # the openjdk package provides that, once installed 'rpm -q --provides' says it
@@ -23,7 +20,7 @@ Requires: jre >= 1.8
 Provides: kafka
 
 %description
-Follow this example and you can do no wrong
+Scalable service for building real time pipelines and streaming applications.
 
 %pre
 getent group kafka >/dev/null || groupadd -r kafka
@@ -46,7 +43,6 @@ mkdir -p $RPM_BUILD_ROOT/opt/kafka/config
 
 cp -r bin $RPM_BUILD_ROOT/opt/kafka
 cp -r config $RPM_BUILD_ROOT/opt/kafka/config-sample
-
 cp -r contrib $RPM_BUILD_ROOT/opt/kafka/contrib
 cp -r core $RPM_BUILD_ROOT/opt/kafka/core
 cp -r examples $RPM_BUILD_ROOT/opt/kafka/examples
@@ -82,6 +78,7 @@ install -d -m0755 $RPM_BUILD_ROOT/%{_sharedstatedir}/kafka
 - Specify build (java-devel) and run (jre) requirements.
 - Require java 1.8 since the kafka group says earlier versions are insecure.
 - Claim to provide 'kafka'
+- Improve the package summary and description strings.
 * Tue Jan 15 2013 Balazs Kossovics <bko@witbe.net>
 - Compile from source
 * Fri Jan 11 2013 Balazs Kossovics <bko@witbe.net>
