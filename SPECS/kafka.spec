@@ -40,7 +40,6 @@ mkdir -p $RPM_BUILD_ROOT/opt/kafka
 mkdir -p $RPM_BUILD_ROOT/opt/kafka/config
 
 cp -r bin $RPM_BUILD_ROOT/opt/kafka
-cp -r clients $RPM_BUILD_ROOT/opt/kafka/clients
 cp -r config $RPM_BUILD_ROOT/opt/kafka/config-sample
 
 cp -r contrib $RPM_BUILD_ROOT/opt/kafka/contrib
@@ -72,6 +71,20 @@ install -d -m0755 $RPM_BUILD_ROOT/%{_sharedstatedir}/kafka
 #used to cleanup things outside the build area and possibly inside.
 
 %changelog
+* Wed Oct 12 2016 "R. David Murray" <rdmurray@bitdance.com>
+- Bring changelog up to date.
+- Remove copy of 'clients' directory, that doesn't exist after the build.
+* Tue Jan 15 2013 Balazs Kossovics <bko@witbe.net>
+- Compile from source
+* Fri Jan 11 2013 Balazs Kossovics <bko@witbe.net>
+- Use RPM macros instead of hard coded paths
+- Specify attributes for kafka /var/lib directory
+- Remove the old buildroot before building
+* Thu Jan 10 2013 Balazs Kossovics <bko@witbe.net>
+- Add creation of kafka dir in /var/lib
+- Specify /bin/sh in runuser so it works even if kafka user has no shell
+* Fri Dec 21 2012 kosii <kossovics@gmail.com>
+- Fixed program name in init script usage output.
 * Wed Jul 11 2012 Edward Capriolo <edward@m6d.com>
 - Rebuild against kafka trunk for mirror mode support
 * Mon May  7 2012  Edward Capriolo <edward@m6d.com>
@@ -79,5 +92,5 @@ install -d -m0755 $RPM_BUILD_ROOT/%{_sharedstatedir}/kafka
 * Tue May  3 2012  Edward Capriolo <edward@m6d.com>
 - Taking care of business
 * Tue May  2 2012  Edward Capriolo <edward@m6d.com>
-- Oldest at the bottom 
+- Oldest at the bottom
 
