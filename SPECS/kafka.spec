@@ -15,7 +15,12 @@ Distribution: m6d
 Vendor: m6d
 Packager: edlinuxguru@gmail.com
 
-Requires(pre): jdk >= 1.6
+# IMO this should be 'BuildRequires: java-devel', but while 'yum provides' says
+# the openjdk package provides that, once installed 'rpm -q --provides' says it
+# doesn't, and rpmbuild also says it doesn't.
+BuildRequires: java-1.8.0-openjdk-devel >= 1.8
+Requires: jre >= 1.8
+Provides: kafka
 
 %description
 Follow this example and you can do no wrong
@@ -74,6 +79,9 @@ install -d -m0755 $RPM_BUILD_ROOT/%{_sharedstatedir}/kafka
 * Wed Oct 12 2016 "R. David Murray" <rdmurray@bitdance.com>
 - Bring changelog up to date.
 - Remove copy of 'clients' directory, that doesn't exist after the build.
+- Specify build (java-devel) and run (jre) requirements.
+- Require java 1.8 since the kafka group says earlier versions are insecure.
+- Claim to provide 'kafka'
 * Tue Jan 15 2013 Balazs Kossovics <bko@witbe.net>
 - Compile from source
 * Fri Jan 11 2013 Balazs Kossovics <bko@witbe.net>
