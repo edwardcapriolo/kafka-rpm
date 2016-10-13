@@ -1,15 +1,18 @@
 %define __jar_repack 0
 Summary: Kafka distributed topic based producer consumer queue
 Name: kafka
-Version: 0.7.2
+Version: 0.10.0.1
 Release: 1
 License: Apache (v2)
 Group: Applications
-# You can get the sources by selecting one of the mirrors from the https://www.apache.org/dyn/closer.cgi/incubator/kafka/kafka-0.7.2-incubating/kafka-0.7.2-incubating-src.tgz site
-Source0: %{name}-%{version}-incubating-src.tgz
-Source1: ftp://ftp.nowhere.com/kafka.init
-Source2: ftp://ftp.nowhere.com/kafka-zookeeper.init
 URL: http://kafka.apache.org
+Source0: http://archive.apache.org/dist/%{name}/%{version}/%{name}-%{version}-src.tgz
+Source1: kafka.init
+Source2: kafka-zookeeper.init
+# Note: does not work with newer version of gradle.
+%define gradle_version 2.8
+Source3: https://services.gradle.org/distributions/gradle-%{gradle_version}-bin.zip
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 # IMO this should be 'BuildRequires: java-devel', but while 'yum provides' says
@@ -30,28 +33,27 @@ getent passwd kafka >/dev/null || \
 exit 0
 %prep
 
-%setup -q -n kafka-0.7.2-incubating-src
+%setup -q -n %{name}-%{version}-src
 %build
-./sbt update
-./sbt package
+unzip %{_sourcedir}/gradle-%{gradle_version}-bin.zip
+./gradle-%{gradle_version}/bin/gradle
+./gradlew jar
 
 %install
-pwd
 rm -rf %{buildroot}
 mkdir -p $RPM_BUILD_ROOT/opt/kafka
 mkdir -p $RPM_BUILD_ROOT/opt/kafka/config
+mkdir -p $RPM_BUILD_ROOT/opt/kafka/libs
+mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/kafka
 
 cp -r bin $RPM_BUILD_ROOT/opt/kafka
 cp -r config $RPM_BUILD_ROOT/opt/kafka/config-sample
-cp -r contrib $RPM_BUILD_ROOT/opt/kafka/contrib
-cp -r core $RPM_BUILD_ROOT/opt/kafka/core
-cp -r examples $RPM_BUILD_ROOT/opt/kafka/examples
-cp -r lib $RPM_BUILD_ROOT/opt/kafka/lib
-cp -r lib_managed $RPM_BUILD_ROOT/opt/kafka/lib_managed
-cp -r perf $RPM_BUILD_ROOT/opt/kafka/perf
-cp -r project $RPM_BUILD_ROOT/opt/kafka/project
-cp sbt $RPM_BUILD_ROOT/opt/kafka/
-#cp -r system_test $RPM_BUILD_ROOT/opt/kafka/system_test #Do not need this 
+cp -n */build/libs/* $RPM_BUILD_ROOT/opt/kafka/libs
+cp -n */build/dependant-libs*/* $RPM_BUILD_ROOT/opt/kafka/libs
+cp -n */*/build/libs/* $RPM_BUILD_ROOT/opt/kafka/libs
+cp -n */*/build/dependant-libs*/* $RPM_BUILD_ROOT/opt/kafka/libs
+cp LICENSE $RPM_BUILD_ROOT/opt/kafka
+cp NOTICE $RPM_BUILD_ROOT/opt/kafka
 
 mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 install  -m 755 %{S:1} $RPM_BUILD_ROOT/etc/rc.d/init.d/kafka
@@ -67,6 +69,7 @@ install -d -m0755 $RPM_BUILD_ROOT/%{_sharedstatedir}/kafka
 %{_sysconfdir}/rc.d/init.d/kafka
 %{_sysconfdir}/rc.d/init.d/kafka-zookeeper
 %config %attr(-, kafka, kafka) %{_sharedstatedir}/kafka
+%config %attr(-, kafka, kafka) %{_localstatedir}/log/kafka
 
 %clean
 #used to cleanup things outside the build area and possibly inside.
@@ -74,11 +77,12 @@ install -d -m0755 $RPM_BUILD_ROOT/%{_sharedstatedir}/kafka
 %changelog
 * Wed Oct 12 2016 "R. David Murray" <rdmurray@bitdance.com>
 - Bring changelog up to date.
-- Remove copy of 'clients' directory, that doesn't exist after the build.
 - Specify build (java-devel) and run (jre) requirements.
 - Require java 1.8 since the kafka group says earlier versions are insecure.
 - Claim to provide 'kafka'
 - Improve the package summary and description strings.
+- Update version to and rewrite build rules for kafka 0.10.0.1
+- Add kafka log directory
 * Tue Jan 15 2013 Balazs Kossovics <bko@witbe.net>
 - Compile from source
 * Fri Jan 11 2013 Balazs Kossovics <bko@witbe.net>
