@@ -60,10 +60,15 @@ mkdir -p %{buildroot}%{kafka_home}
 mkdir -p %{buildroot}%{kafka_home}/config
 mkdir -p %{buildroot}%{kafka_home}/libs
 mkdir -p %{buildroot}%{_localstatedir}/log/kafka
+mkdir -p %{buildroot}%{_sharedstatedir}/kafka
 mkdir -p %{buildroot}%{_localstatedir}/log/zookeeper
+mkdir -p %{buildroot}%{_sharedstatedir}/zookeeper
 
 cp -r bin %{buildroot}%{kafka_home}
 cp -r config %{buildroot}%{kafka_home}/config-sample
+sed "s,log.dirs=.*,log.dirs=%{_sharedstatedir}/kafka," config/server.properties >%{buildroot}%{kafka_home}/config/server.properties
+sed "s,dataDir=.*,dataDir=%{_sharedstatedir}/zookeeper," config/zookeeper.properties >%{buildroot}%{kafka_home}/config/zookeeper.properties
+cp config/log4j.properties %{buildroot}%{kafka_home}/config
 cp -n */build/libs/* %{buildroot}%{kafka_home}/libs
 cp -n */build/dependant-libs*/* %{buildroot}%{kafka_home}/libs
 cp -n */*/build/libs/* %{buildroot}%{kafka_home}/libs
@@ -75,19 +80,24 @@ mkdir -p %{buildroot}/etc/rc.d/init.d
 install  -m 755 %{S:1} %{buildroot}%{_initrddir}/kafka
 install  -m 755 %{S:2} %{buildroot}%{_initrddir}/kafka-zookeeper
 install -d -m0755 %{buildroot}/%{_sharedstatedir}/kafka
+install -d -m0755 %{buildroot}/%{_sharedstatedir}/zookeeper
 
 
 %files
 %defattr(-,root,root)
-
-%config %attr(755,root,root) %{kafka_home}/config
 
 %{kafka_home}
 %{_initrddir}/kafka
 %{_initrddir}/kafka-zookeeper
 %config %attr(-, %{kafka_user}, %{kafka_group}) %{_sharedstatedir}/kafka
 %config %attr(-, %{kafka_user}, %{kafka_group}) %{_localstatedir}/log/kafka
+%config %attr(-, %{zookeeper_user}, %{zookeeper_group}) %{_sharedstatedir}/zookeeper
 %config %attr(-, %{zookeeper_user}, %{zookeeper_group}) %{_localstatedir}/log/zookeeper
+
+
+%post
+chkconfig --add kafka
+chkconfig --add kafka-zookeeper
 
 
 %clean
@@ -99,6 +109,8 @@ rm -rf %{buildroot}
 - Add zookeeper user and log directory
 - Move the removal of the builddir to %clean
 - More macro use.
+- Copy modified configs needed for startup into 'config' to serve as defaults
+- Run chkconfig in %post to start kafka automatically
 * Wed Oct 12 2016 "R. David Murray" <rdmurray@bitdance.com>
 - Bring changelog up to date.
 - Specify build (java-devel) and run (jre) requirements.

@@ -12,7 +12,7 @@ source /etc/rc.d/init.d/functions
 
 KAFKA_HOME=/opt/kafka
 KAFKA_USER=kafka
-KAFKA_LOGDIR=/var/log/kafka
+export LOG_DIR=/var/log/kafka
 
 [ -e /etc/sysconfig/kafka ] && . /etc/sysconfig/kafka
 
@@ -21,7 +21,7 @@ case "$1" in
 
   start)
     echo -n "Starting Kafka:"
-    /sbin/runuser -s /bin/sh $KAFKA_USER -c "nohup $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties > $KAFKA_LOGDIR/kafka/server.out 2> $KAFKA_LOGDIR/kafka/server.err &"
+    /sbin/runuser -s /bin/sh $KAFKA_USER -c "nohup $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties > $LOG_DIR/server.out 2> $LOG_DIR/server.err &"
     echo " done."
     exit 0
     ;;
