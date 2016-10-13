@@ -22,59 +22,83 @@ BuildRequires: java-1.8.0-openjdk-devel >= 1.8
 Requires: jre >= 1.8
 Provides: kafka
 
+%define kafka_home /opt/kafka
+%define kafka_user %{name}
+%define kafka_group %{name}
+%define zookeeper_user zookeeper
+%define zookeeper_group zookeeper
+
+
 %description
 Scalable service for building real time pipelines and streaming applications.
 
-%pre
-getent group kafka >/dev/null || groupadd -r kafka
-getent passwd kafka >/dev/null || \
-    useradd -r -g kafka -d %{_sharedstatedir}/kafka -s /sbin/nologin \
-    -c "User for kafka services" kafka
-exit 0
-%prep
 
+%pre
+getent group %{zookeeper_group} >/dev/null || groupadd -r %{zookeeper_group}
+getent passwd %{zookeeper_user} >/dev/null || \
+    useradd -r -g %{zookeeper_group} -d %{_sharedstatedir}/zookeeper -s /sbin/nologin \
+    -c "User for zookeeper services" %{zookeeper_user}
+getent group %{kafka_group} >/dev/null || groupadd -r %{kafka_group}
+getent passwd %{kafka_user} >/dev/null || \
+    useradd -r -g %{kafka_group} -d %{_sharedstatedir}/kafka -s /sbin/nologin \
+    -c "User for kafka services" %{kafka_user}
+exit 0
+
+
+%prep
 %setup -q -n %{name}-%{version}-src
+
+
 %build
 unzip %{_sourcedir}/gradle-%{gradle_version}-bin.zip
 ./gradle-%{gradle_version}/bin/gradle
 ./gradlew jar
 
+
 %install
-rm -rf %{buildroot}
-mkdir -p $RPM_BUILD_ROOT/opt/kafka
-mkdir -p $RPM_BUILD_ROOT/opt/kafka/config
-mkdir -p $RPM_BUILD_ROOT/opt/kafka/libs
-mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/kafka
+mkdir -p %{buildroot}%{kafka_home}
+mkdir -p %{buildroot}%{kafka_home}/config
+mkdir -p %{buildroot}%{kafka_home}/libs
+mkdir -p %{buildroot}%{_localstatedir}/log/kafka
+mkdir -p %{buildroot}%{_localstatedir}/log/zookeeper
 
-cp -r bin $RPM_BUILD_ROOT/opt/kafka
-cp -r config $RPM_BUILD_ROOT/opt/kafka/config-sample
-cp -n */build/libs/* $RPM_BUILD_ROOT/opt/kafka/libs
-cp -n */build/dependant-libs*/* $RPM_BUILD_ROOT/opt/kafka/libs
-cp -n */*/build/libs/* $RPM_BUILD_ROOT/opt/kafka/libs
-cp -n */*/build/dependant-libs*/* $RPM_BUILD_ROOT/opt/kafka/libs
-cp LICENSE $RPM_BUILD_ROOT/opt/kafka
-cp NOTICE $RPM_BUILD_ROOT/opt/kafka
+cp -r bin %{buildroot}%{kafka_home}
+cp -r config %{buildroot}%{kafka_home}/config-sample
+cp -n */build/libs/* %{buildroot}%{kafka_home}/libs
+cp -n */build/dependant-libs*/* %{buildroot}%{kafka_home}/libs
+cp -n */*/build/libs/* %{buildroot}%{kafka_home}/libs
+cp -n */*/build/dependant-libs*/* %{buildroot}%{kafka_home}/libs
+cp LICENSE %{buildroot}%{kafka_home}
+cp NOTICE %{buildroot}%{kafka_home}
 
-mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
-install  -m 755 %{S:1} $RPM_BUILD_ROOT/etc/rc.d/init.d/kafka
-install  -m 755 %{S:2} $RPM_BUILD_ROOT/etc/rc.d/init.d/kafka-zookeeper
-install -d -m0755 $RPM_BUILD_ROOT/%{_sharedstatedir}/kafka
+mkdir -p %{buildroot}/etc/rc.d/init.d
+install  -m 755 %{S:1} %{buildroot}%{_initrddir}/kafka
+install  -m 755 %{S:2} %{buildroot}%{_initrddir}/kafka-zookeeper
+install -d -m0755 %{buildroot}/%{_sharedstatedir}/kafka
+
 
 %files
 %defattr(-,root,root)
 
-%config %attr(755,root,root) /opt/kafka/config
+%config %attr(755,root,root) %{kafka_home}/config
 
-/opt/kafka
-%{_sysconfdir}/rc.d/init.d/kafka
-%{_sysconfdir}/rc.d/init.d/kafka-zookeeper
-%config %attr(-, kafka, kafka) %{_sharedstatedir}/kafka
-%config %attr(-, kafka, kafka) %{_localstatedir}/log/kafka
+%{kafka_home}
+%{_initrddir}/kafka
+%{_initrddir}/kafka-zookeeper
+%config %attr(-, %{kafka_user}, %{kafka_group}) %{_sharedstatedir}/kafka
+%config %attr(-, %{kafka_user}, %{kafka_group}) %{_localstatedir}/log/kafka
+%config %attr(-, %{zookeeper_user}, %{zookeeper_group}) %{_localstatedir}/log/zookeeper
+
 
 %clean
-#used to cleanup things outside the build area and possibly inside.
+rm -rf %{buildroot}
+
 
 %changelog
+* Thu Oct 13 2016 "R. David Murray" <rdmurray@bitdance.com>
+- Add zookeeper user and log directory
+- Move the removal of the builddir to %clean
+- More macro use.
 * Wed Oct 12 2016 "R. David Murray" <rdmurray@bitdance.com>
 - Bring changelog up to date.
 - Specify build (java-devel) and run (jre) requirements.

@@ -10,18 +10,18 @@
 
 source /etc/rc.d/init.d/functions
 
-if [ -f /etc/sysconfig/kafka-zookeeper ]; then
-  source /etc/sysconfig/kafka-zookeeper
-fi
+KAFKA_HOME=/opt/kafka
+ZOOKEEPER_USR=zookeeper
+ZOOKEEPER_LOGDIR=/var/log/zookeeper
 
-KAFKA_HOME=${KAFKA_HOME=/opt/kafka}
-KAFKA_ZK_USER=${KAFKA_ZK_USER=zookeeper}
+[ -e /etc/sysconfig/kafka ] && . /etc/sysconfig/kafka
+
 # See how we were called.
 case "$1" in
 
   start)
     echo -n "Starting kafka-zookeeper:"
-    /sbin/runuser  $KAFKA_ZK_USER  -c "nohup $KAFKA_HOME/bin/zookeeper-server-start.sh $KAFKA_HOME/config/zookeeper.properties >> /var/log/zookeeper/server.out 2> /var/log/zookeeper/server.err &"
+    /sbin/runuser  $KAFKA_ZK_USER  -c "nohup $KAFKA_HOME/bin/zookeeper-server-start.sh $KAFKA_HOME/config/zookeeper.properties >> $ZOOKEEPER_LOGDIR/zookeeper/server.out 2> $ZOOKEEPER_LOGDIR/zookeeper/server.err &"
     echo " done."
     exit 0
     ;;
