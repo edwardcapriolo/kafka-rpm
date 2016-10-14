@@ -23,3 +23,10 @@ are located in /opt/kafka/config-sample.  Config files are placed in
 kafka on their default ports, but you will need to change these configs for a
 multi-server production deployment.  Once installed zookeeper and kafka will be
 started on boot; run chkconfig if you don't want that.
+
+NOTE: the spec file requires java 1.8 for security reasons.  Kafka will build
+with 1.7 if you want to figure out if you have a 'safe' version of 1.7,
+or don't care.
+
+Updating the kafka version should be a straightforward matter of changing
+the version number...until they change their build process again.
