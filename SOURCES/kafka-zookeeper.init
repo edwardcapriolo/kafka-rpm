@@ -10,31 +10,31 @@
 
 source /etc/rc.d/init.d/functions
 
-if [ -f /etc/sysconfig/kafka-zookeeper ]; then
-  source /etc/sysconfig/kafka-zookeeper
-fi
+KAFKA_HOME=/opt/kafka
+ZOOKEEPER_USER=zookeeper
+export LOG_DIR=/var/log/zookeeper
 
-KAFKA_HOME=${KAFKA_HOME=/opt/kafka}
-KAFKA_ZK_USER=${KAFKA_ZK_USER=zookeeper}
+[ -e /etc/sysconfig/kafka ] && . /etc/sysconfig/kafka
+
 # See how we were called.
 case "$1" in
 
   start)
     echo -n "Starting kafka-zookeeper:"
-    /sbin/runuser  $KAFKA_ZK_USER  -c "nohup $KAFKA_HOME/bin/zookeeper-server-start.sh $KAFKA_HOME/config/zookeeper.properties >> /var/log/zookeeper/server.out 2> /var/log/zookeeper/server.err &"
+    /sbin/runuser -s /bin/sh $ZOOKEEPER_USER -c "nohup $KAFKA_HOME/bin/zookeeper-server-start.sh $KAFKA_HOME/config/zookeeper.properties >> $LOG_DIR/server.out 2> $LOG_DIR/server.err &"
     echo " done."
     exit 0
     ;;
 
   stop)
     echo -n "Stopping kafka-zookeeper: "
-    /sbin/runuser  $KAFKA_ZK_USER  -c "ps -ef | grep org.apache.zookeeper.server.quorum.QuorumPeerMain | grep -v grep | awk '{print \$2}' | xargs kill"
+    /sbin/runuser -s /bin/sh $ZOOKEEPER_USER -c "ps -ef | grep org.apache.zookeeper.server.quorum.QuorumPeerMain | grep -v grep | awk '{print \$2}' | xargs kill"
     echo " done."
     exit 0
     ;;
   hardstop)
     echo -n "Stopping (hard) kafka-zookeeper: "
-    /sbin/runuser  $KAFKA_ZK_USER  -c "ps -ef | grep org.apache.zookeeper.server.quorum.QuorumPeerMain | grep -v grep | awk '{print \$2}' | xargs kill -9"
+    /sbin/runuser -s /bin/sh $ZOOKEEPER_USER -c "ps -ef | grep org.apache.zookeeper.server.quorum.QuorumPeerMain | grep -v grep | awk '{print \$2}' | xargs kill -9"
     echo " done."
     exit 0
     ;;
