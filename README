@@ -1,3 +1,25 @@
-Use this to build Kafka RPM.
-Some notes:
-In the package SOURCES/kafka-0.7.2.tar.gz is not an official version. It is simply a git clone of kafka/trunk, that is build using using sbt and then packaged into a tar.
+Use this to build a kafka RPM.
+
+This project is laid out for use with rpmbuild.  Let's suppose you've cloned it
+as ~/kafka-rpm.  Then to build the RPM, you'd do:
+
+    ln -s kafka-rpm rpmbuild
+    spectool -g -R rpmbuild/SPECS/kafka.spec
+    rpmbuild -bb rpmbuild/SPECS/kafka.spec
+
+The 'spectool' line will download the sources for kafka and the binaries for
+gradle.  You could alternatively download them by hand and put them in the
+SOURCES directory.  The rpmbuild line builds kafka and creates the RPM
+containing just the files needed for running kafka, which will be placed in a
+subdirectory of the RPMS directory.
+
+The result of installing the RPM is similar to the kafka binary distribution,
+but installed.  The jar and support files are placed in /opt/kafka, Two users
+are added, kafka and zookeeper.  All the logging goes to /var/log/kafka and
+/var/log/zookeeper.  The data files are placed in /var/lib/kafka and
+/var/lib/zookeeper.  All of the config files mentioned in the kafka quickstart
+are located in /opt/kafka/config-sample.  Config files are placed in
+/opt/kafka/config to allow the supplied init scripts to start zookeeper and
+kafka on their default ports, but you will need to change these configs for a
+multi-server production deployment.  Once installed zookeeper and kafka will be
+started on boot; run chkconfig if you don't want that.
